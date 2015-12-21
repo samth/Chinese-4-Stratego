@@ -1,1 +1,3 @@
-# Chinese-4-Stratego
+Chinese-4-Stratego
+==================
+README text here.
