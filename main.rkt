@@ -22,10 +22,13 @@
   (method [(attack (compose normal-piece? pobp)) (defense (compose normal-piece? pobp))]
           (if (<= (power (pobp attack)) (power (pobp defense))) (kill! attack) void)
           (if (<= (power (pobp defense)) (power (pobp attack))) (kill! defense) void))
-  (method [(attack (compose bomb? pobp)) (defense (const true))]
+  (method [(attack (compose bomb? pobp)) (defense true)]
           (kill! attack)
           (kill! defense))
-  (method [(attack (const true)) (defense (compose bomb? pobp))]
+  (method [(attack true) (defense (compose bomb? pobp))]
+          (kill! attack)
+          (kill! defense))
+  (method [(attack (compose bomb? pobp)) (defense (compose bomb? pobp))]
           (kill! attack)
           (kill! defense)))
 (collide! (piece-on-board (bomb) 1 1 1 1) (piece-on-board (bomb) 1 1 1 1))
