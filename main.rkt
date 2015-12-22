@@ -1,35 +1,22 @@
 #lang racket/base
-
+(require racket/class)
+(require racket/bool)
+(require racket/generic)
+(require gls)
 (module+ test
   (require rackunit))
 
-;; Notice
-;; To install (from within the package directory):
-;;   $ raco pkg install
-;; To install (once uploaded to pkgs.racket-lang.org):
-;;   $ raco pkg install <<name>>
-;; To uninstall:
-;;   $ raco pkg remove <<name>>
-;; To view documentation:
-;;   $ raco doc <<name>>
-;;
-;; For your convenience, we have included a LICENSE.txt file, which links to
-;; the GNU Lesser General Public License.
-;; If you would prefer to use a different license, replace LICENSE.txt with the
-;; desired license.
-;;
-;; Some users like to add a `private/` directory, place auxiliary files there,
-;; and require them in `main.rkt`.
-;;
-;; See the current version of the racket style guide here:
-;; http://docs.racket-lang.org/style/index.html
-
-;; Code here
-
-(module+ test
-  ;; Tests to be run with raco test
-  )
-
+(module+ test)
+(define help-text "This is the board game stratego. For more detail see wikipedia.")
+(define unknown-piece-text "?")
+(struct piece (text))
+(struct piece-on-board (piece pos board shown?) #:mutable)
+(define kill! error)
+(define (compose f g) (lambda (x) (f (g x))))
+(struct normal-piece piece (power))
+(defgeneric collide!
+  (method [(attack (compose normal-piece? piece-on-board-piece)) (defense (compose normal-piece? piece-on-board-piece))]
+          (if (<= (normal-piece-power (piece-on-board-piece attack)) (normal-piece-power (piece-on-board-piece defense))) (kill! attack) void)
+          (if (<= (normal-piece-power (piece-on-board-piece defense)) (normal-piece-power (piece-on-board-piece attack))) (kill! attack) void)))
 (module+ main
-  ;; Main entry point, executed when run with the `racket` executable or DrRacket.
-  )
+  (display help-text))
