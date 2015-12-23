@@ -13,6 +13,7 @@
 (define (kill! x) (display (string-append (text (piece x)) " is killed")) (newline))
 (define (compose f g) (lambda (x) (f (g x))))
 (struct bomb ())
+(struct flag ())
 (define piece piece-on-board-piece)
 (struct normal-piece (rank))
 (defgeneric text
@@ -27,7 +28,8 @@
                   [((eq? r 7) "captain")]
                   [((eq? r 8) "platoon leader")]
                   [((eq? r 9) "combat engineer")])))
-  (method [(_ bomb?)] "bomb"))
+  (method [(_ bomb?)] "bomb")
+  (method [(_ flag?)] "flag"))
 (define rank normal-piece-rank)
 
 (defgeneric collide!
@@ -42,6 +44,8 @@
           (kill! defense))
   (method [(attack (compose? (list bomb? piece))) (defense (compose? (list bomb? piece)))]
           (kill! attack)
+          (kill! defense))
+  (method [(attack true) (defense (compose? (list flag? piece)))]
           (kill! defense)))
 (collide! (piece-on-board (bomb) 1 1 1 1) (piece-on-board (bomb) 1 1 1 1))
 (struct player (name handler))
