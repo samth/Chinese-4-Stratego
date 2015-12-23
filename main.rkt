@@ -45,9 +45,11 @@
   (method [(attack (compose? (list normal-piece? piece))) (defense (compose? (list normal-piece? piece)))]
           (if (<= (rank (piece attack)) (rank (piece defense))) (kill! defense) void)
           (if (<= (rank (piece defense)) (rank (piece attack))) (kill! attack) void))
-  (method [(attack (compose? (list bomb? piece))) (defense true)]
+  (method [(attack (compose? (list bomb? piece))) (defense (compose? (list not flag? piece)))]
           (kill! attack)
           (kill! defense))
+  (method [(attack (compose? (list bomb? piece))) (defense (compose? (list flag? piece)))]
+          (kill! attack))
   (method [(attack true) (defense (compose? (list bomb? piece)))]
           (kill! attack)
           (kill! defense))
