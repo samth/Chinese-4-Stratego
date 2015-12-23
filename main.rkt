@@ -10,14 +10,21 @@
 (define help-text "This is the board game stratego. For more detail see wikipedia.")
 (define unknown-piece-text "?")
 (struct piece-on-board (piece shown? pos board player) #:mutable)
-(define (kill! x) (display (string-append (text (piece x)) " is killed")) (newline))
-(define (compose f g) (lambda (x) (f (g x))))
+(define (show! x) (set-piece-on-board-shown?! x true))
+(define (kill! x) (display (string-append (text x) " is killed")) (newline))
 (struct bomb ())
 (struct flag ())
 (struct mine ())
 (define piece piece-on-board-piece)
+(define shown? piece-on-board-shown?)
 (struct normal-piece (rank))
-(defgeneric text
+(defgeneric movable?
+  (method [(_ normal-piece?)] true)
+  (method [(_ bomb?)] true)
+  (method [(_ flag?)] false)
+  (method [(_ mine?)] false))
+(define (text p) (if (shown? p) (name (piece p)) unknown-piece-text))
+(defgeneric name
   (method [(p normal-piece?)]
           (let ((r (rank p)))
             (cond [((eq? r 1) "command officer")]
@@ -33,7 +40,7 @@
   (method [(_ flag?)] "flag")
   (method [(_ mine?)] "mine"))
 (define rank normal-piece-rank)
-
+(define combat-engineer? (and? normal-piece? (lambda (p) (eq? (rank p) 9))))
 (defgeneric collide!
   (method [(attack (compose? (list normal-piece? piece))) (defense (compose? (list normal-piece? piece)))]
           (if (<= (rank (piece attack)) (rank (piece defense))) (kill! defense) void)
@@ -49,10 +56,12 @@
           (kill! defense))
   (method [(attack true) (defense (compose? (list flag? piece)))]
           (kill! defense))
-  (method [(attack true) (defense (compose? (list mine? piece)))]
+  (method [(attack (compose? (list not combat-engineer? piece))) (defense (compose? (list mine? piece)))]
           (kill! attack)
+          (kill! defense))
+  (method [(attack (compose? (list combat-engineer? piece))) (defense (compose? (list mine? piece)))]
           (kill! defense)))
-(collide! (piece-on-board (bomb) 1 1 1 1) (piece-on-board (bomb) 1 1 1 1))
+(collide! (piece-on-board (bomb) true 1 1 1) (piece-on-board (bomb) false 1 1 1))
 (struct player (name handler))
 (module+ main
   (display help-text))
