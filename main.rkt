@@ -10,25 +10,26 @@
 (define help-text "This is the board game stratego. For more detail see wikipedia.")
 (define unknown-piece-text "?")
 (struct piece-on-board (piece shown? pos board player) #:mutable)
-(define (kill! x) (display (string-append (text (pobp x)) " is killed")) (newline))
+(define (kill! x) (display (string-append (text (piece x)) " is killed")) (newline))
 (define (compose f g) (lambda (x) (f (g x))))
-(define (text n) "...")
-(struct normal-piece (power))
 (struct bomb ())
-(define pobp piece-on-board-piece)
+(define piece piece-on-board-piece)
+(defgeneric text
+  (method [(_ bomb?)] "bomb"))
+(struct normal-piece (power))
 (define power normal-piece-power)
-(define (const x) (lambda _ x))
+
 (defgeneric collide!
-  (method [(attack (compose normal-piece? pobp)) (defense (compose normal-piece? pobp))]
-          (if (<= (power (pobp attack)) (power (pobp defense))) (kill! attack) void)
-          (if (<= (power (pobp defense)) (power (pobp attack))) (kill! defense) void))
-  (method [(attack (compose? (list bomb? pobp))) (defense true)]
+  (method [(attack (compose? (list normal-piece? piece))) (defense (compose? (list normal-piece? piece)))]
+          (if (<= (power (piece attack)) (power (piece defense))) (kill! attack) void)
+          (if (<= (power (piece defense)) (power (piece attack))) (kill! defense) void))
+  (method [(attack (compose? (list bomb? piece))) (defense true)]
           (kill! attack)
           (kill! defense))
-  (method [(attack true) (defense (compose? (list bomb? pobp)))]
+  (method [(attack true) (defense (compose? (list bomb? piece)))]
           (kill! attack)
           (kill! defense))
-  (method [(attack (compose? (list bomb? pobp))) (defense (compose? (list bomb? pobp)))]
+  (method [(attack (compose? (list bomb? piece))) (defense (compose? (list bomb? piece)))]
           (kill! attack)
           (kill! defense)))
 (collide! (piece-on-board (bomb) 1 1 1 1) (piece-on-board (bomb) 1 1 1 1))
