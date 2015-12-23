@@ -14,15 +14,26 @@
 (define (compose f g) (lambda (x) (f (g x))))
 (struct bomb ())
 (define piece piece-on-board-piece)
+(struct normal-piece (rank))
 (defgeneric text
+  (method [(p normal-piece?)]
+          (let ((r (rank p)))
+            (cond [((eq? r 1) "command officer")]
+                  [((eq? r 2) "general")]
+                  [((eq? r 3) "division leader")]
+                  [((eq? r 4) "brigadier")]
+                  [((eq? r 5) "colonel")]
+                  [((eq? r 6) "lieutenant colonel")]
+                  [((eq? r 7) "captain")]
+                  [((eq? r 8) "platoon leader")]
+                  [((eq? r 9) "combat engineer")])))
   (method [(_ bomb?)] "bomb"))
-(struct normal-piece (power))
-(define power normal-piece-power)
+(define rank normal-piece-rank)
 
 (defgeneric collide!
   (method [(attack (compose? (list normal-piece? piece))) (defense (compose? (list normal-piece? piece)))]
-          (if (<= (power (piece attack)) (power (piece defense))) (kill! attack) void)
-          (if (<= (power (piece defense)) (power (piece attack))) (kill! defense) void))
+          (if (<= (rank (piece attack)) (rank (piece defense))) (kill! defense) void)
+          (if (<= (rank (piece defense)) (rank (piece attack))) (kill! attack) void))
   (method [(attack (compose? (list bomb? piece))) (defense true)]
           (kill! attack)
           (kill! defense))
