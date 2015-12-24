@@ -42,26 +42,26 @@
 (define rank normal-piece-rank)
 (define combat-engineer? (and? normal-piece? (lambda (p) (eq? (rank p) 9))))
 (defgeneric collide!
-  (method [(attack (compose? (list normal-piece? piece))) (defense (compose? (list normal-piece? piece)))]
+  (method [(attack (compose? normal-piece? piece)) (defense (compose? normal-piece? piece))]
           (if (<= (rank (piece attack)) (rank (piece defense))) (kill! defense) void)
           (if (<= (rank (piece defense)) (rank (piece attack))) (kill! attack) void))
-  (method [(attack (compose? (list bomb? piece))) (defense (compose? (list not flag? piece)))]
+  (method [(attack (compose? bomb? piece)) (defense (compose? not flag? piece))]
           (kill! attack)
           (kill! defense))
-  (method [(attack (compose? (list bomb? piece))) (defense (compose? (list flag? piece)))]
+  (method [(attack (compose? bomb? piece)) (defense (compose? flag? piece))]
           (kill! attack))
-  (method [(attack true) (defense (compose? (list bomb? piece)))]
+  (method [(attack true) (defense (compose? bomb? piece))]
           (kill! attack)
           (kill! defense))
-  (method [(attack (compose? (list bomb? piece))) (defense (compose? (list bomb? piece)))]
+  (method [(attack (compose? bomb? piece)) (defense (compose? bomb? piece))]
           (kill! attack)
           (kill! defense))
-  (method [(attack true) (defense (compose? (list flag? piece)))]
+  (method [(attack true) (defense (compose? flag? piece))]
           (kill! defense))
-  (method [(attack (compose? (list not combat-engineer? piece))) (defense (compose? (list mine? piece)))]
+  (method [(attack (compose? not combat-engineer? piece)) (defense (compose? mine? piece))]
           (kill! attack)
           (kill! defense))
-  (method [(attack (compose? (list combat-engineer? piece))) (defense (compose? (list mine? piece)))]
+  (method [(attack (compose? combat-engineer? piece)) (defense (compose? mine? piece))]
           (kill! defense)))
 (collide! (piece-on-board (bomb) true 1 1 1) (piece-on-board (bomb) false 1 1 1))
 (struct player (name handler))
