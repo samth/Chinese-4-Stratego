@@ -1,6 +1,7 @@
 #lang info
 (define collection "Chinese-4-Stratego")
-(define deps '("base"
+(define deps '("gls"
+               "base"
                "rackunit-lib"))
 (define build-deps '("scribble-lib" "racket-doc"))
 (define scribblings '(("scribblings/Chinese-4-Stratego.scrbl" ())))
